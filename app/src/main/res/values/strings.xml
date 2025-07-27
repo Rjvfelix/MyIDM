@@ -35,6 +35,7 @@
     <string name="permissions_required">Permissions requises</string>
     <string name="permissions_explanation">MyIDM a besoin d\'accéder au stockage pour sauvegarder vos téléchargements.</string>
     <string name="download_started">Téléchargement démarré</string>
+    <string name="scanning_for_videos">Recherche de vidéos...</string>
     <string name="download_completed">Téléchargement terminé</string>
     <string name="download_failed">Échec du téléchargement</string>
     <string name="download_paused">Téléchargement mis en pause</string>
@@ -42,6 +43,21 @@
     <string name="download_cancelled">Téléchargement annulé</string>
     <string name="no_downloads_yet">Aucun téléchargement</string>
     <string name="tap_fab_to_add_download">Appuyez sur le bouton + pour ajouter un téléchargement</string>
+    
+    <!-- Filter strings -->
+    <string name="filter_all">Tous</string>
+    <string name="filter_downloading">En cours</string>
+    <string name="filter_paused">En pause</string>
+    <string name="filter_completed">Terminés</string>
+    <string name="filter_failed">Échecs</string>
+    
+    <!-- Sample strings for layout preview -->
+    <string name="sample_filename">sample_file.mp4</string>
+    <string name="sample_url">https://example.com/file.mp4</string>
+    <string name="speed_1_2_mb_s">1.2 MB/s</string>
+    <string name="size_45_2_mb">45.2 MB</string>
+    <string name="no_downloads">Aucun téléchargement</string>
+    <string name="no_downloads_description">Appuyez sur le bouton + pour ajouter un nouveau téléchargement</string>
     
     <!-- Browser -->
     <string name="browser_title">Navigateur intégré</string>
@@ -59,6 +75,7 @@
     <string name="multiple_videos_detected">Vidéos multiples détectées</string>
     <string name="stream_detected">Flux de streaming détecté</string>
     <string name="download_video">Télécharger la vidéo</string>
+    <string name="preview">Aperçu</string>
     <string name="select_quality">Sélectionner la qualité</string>
     <string name="quality_auto">Automatique</string>
     <string name="quality_1080p">1080p</string>

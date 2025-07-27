@@ -19,6 +19,9 @@ import com.google.android.material.textfield.TextInputEditText;
 import dagger.hilt.android.AndroidEntryPoint;
 import rjv.mg.myidm.R;
 import rjv.mg.myidm.domain.browser.VideoDetector;
+import rjv.mg.myidm.domain.downloader.DownloadManager;
+
+import javax.inject.Inject;
 
 @AndroidEntryPoint
 public class BrowserFragment extends Fragment {
@@ -36,6 +39,9 @@ public class BrowserFragment extends Fragment {
     
     private VideoDetector videoDetector;
     private boolean canGoBack = false;
+    
+    @Inject
+    rjv.mg.myidm.domain.downloader.DownloadManager downloadManager;
     
     @Nullable
     @Override
@@ -83,6 +89,31 @@ public class BrowserFragment extends Fragment {
         webView.getSettings().setSupportZoom(true);
         webView.getSettings().setDefaultTextEncodingName("utf-8");
         
+        // Add JavaScript interface for video detection
+        webView.addJavascriptInterface(new Object() {
+            @android.webkit.JavascriptInterface
+            public void onVideosDetected(String videoData) {
+                try {
+                    org.json.JSONArray jsonArray = new org.json.JSONArray(videoData);
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        org.json.JSONObject video = jsonArray.getJSONObject(i);
+                        String url = video.getString("url");
+                        String type = video.getString("type");
+                        String title = video.getString("title");
+                        
+                        VideoDetector.VideoInfo videoInfo = new VideoDetector.VideoInfo(url);
+                        videoInfo.setType(type);
+                        videoInfo.setTitle(title);
+                        requireActivity().runOnUiThread(() -> {
+                            showVideoDetectedDialog(videoInfo);
+                        });
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }, "Android");
+        
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) {
@@ -100,36 +131,40 @@ public class BrowserFragment extends Fragment {
                 urlEditText.setText(url);
                 updateNavigationButtons();
                 
-                // Detect videos after page loads
-                videoDetector.detectVideosInWebView(webView);
+                // Inject JavaScript for video detection
+                injectVideoDetectionScript();
             }
             
             @Override
             public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
                 super.onReceivedError(view, errorCode, description, failingUrl);
                 progressBar.setVisibility(View.GONE);
-                statusText.setText(getString(R.string.error_loading_page) + ": " + description);
+                statusText.setText(R.string.error_loading_page);
             }
         });
     }
     
     private void setupListeners() {
-        // URL input
         urlEditText.setOnEditorActionListener((v, actionId, event) -> {
-            String url = urlEditText.getText().toString().trim();
-            if (!url.isEmpty()) {
-                loadUrl(url);
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_GO) {
+                loadUrl(urlEditText.getText().toString());
+                return true;
             }
-            return true;
+            return false;
         });
         
-        // Navigation buttons
         backButton.setOnClickListener(v -> goBack());
         forwardButton.setOnClickListener(v -> goForward());
         refreshButton.setOnClickListener(v -> refresh());
         shareButton.setOnClickListener(v -> sharePage());
         bookmarkButton.setOnClickListener(v -> bookmarkPage());
-        downloadButton.setOnClickListener(v -> showDownloadOptions());
+        downloadButton.setOnClickListener(v -> {
+            // Trigger video detection manually
+            injectVideoDetectionScript();
+            android.widget.Toast.makeText(requireContext(), 
+                R.string.scanning_for_videos, 
+                android.widget.Toast.LENGTH_SHORT).show();
+        });
     }
     
     private void setupVideoDetection() {
@@ -149,6 +184,93 @@ public class BrowserFragment extends Fragment {
                 showMultipleVideosDialog(videos);
             }
         });
+    }
+    
+    private void injectVideoDetectionScript() {
+        String script = "javascript:" +
+            "(function() {" +
+            "    var videos = [];" +
+            "    " +
+            "    // Detect HTML5 video elements" +
+            "    var videoElements = document.querySelectorAll('video');" +
+            "    for (var i = 0; i < videoElements.length; i++) {" +
+            "        var video = videoElements[i];" +
+            "        var sources = video.querySelectorAll('source');" +
+            "        " +
+            "        if (sources.length > 0) {" +
+            "            for (var j = 0; j < sources.length; j++) {" +
+            "                var source = sources[j];" +
+            "                if (source.src) {" +
+            "                    videos.push({" +
+            "                        url: source.src," +
+            "                        type: source.type || 'video/mp4'," +
+            "                        title: video.title || document.title," +
+            "                        width: video.videoWidth," +
+            "                        height: video.videoHeight" +
+            "                    });" +
+            "                }" +
+            "            }" +
+            "        } else if (video.src) {" +
+            "            videos.push({" +
+            "                url: video.src," +
+            "                type: video.type || 'video/mp4'," +
+            "                title: video.title || document.title," +
+            "                width: video.videoWidth," +
+            "                height: video.videoHeight" +
+            "            });" +
+            "        }" +
+            "    }" +
+            "    " +
+            "    // Detect iframe embeds (YouTube, Vimeo, etc.)" +
+            "    var iframes = document.querySelectorAll('iframe');" +
+            "    for (var i = 0; i < iframes.length; i++) {" +
+            "        var iframe = iframes[i];" +
+            "        if (iframe.src) {" +
+            "            var src = iframe.src.toLowerCase();" +
+            "            if (src.includes('youtube.com') || src.includes('youtu.be') || " +
+            "                src.includes('vimeo.com') || src.includes('dailymotion.com') || " +
+            "                src.includes('facebook.com') || src.includes('instagram.com')) {" +
+            "                videos.push({" +
+            "                    url: iframe.src," +
+            "                    type: 'embed'," +
+            "                    title: iframe.title || document.title" +
+            "                });" +
+            "            }" +
+            "        }" +
+            "    }" +
+            "    " +
+            "    // Detect video links in page" +
+            "    var links = document.querySelectorAll('a[href]');" +
+            "    for (var i = 0; i < links.length; i++) {" +
+            "        var link = links[i];" +
+            "        var href = link.href.toLowerCase();" +
+            "        if (href.match(/\\.(mp4|avi|mkv|mov|wmv|flv|webm|m4v|3gp|ts|m3u8|mpd)(\\?.*)?$/)) {" +
+            "            videos.push({" +
+            "                url: link.href," +
+            "                type: 'direct'," +
+            "                title: link.textContent.trim() || document.title" +
+            "            });" +
+            "        }" +
+            "    }" +
+            "    " +
+            "    // Detect streaming URLs in page content" +
+            "    var pageText = document.body.innerText;" +
+            "    var urlRegex = /https?:\\/\\/[^\\s\"']*\\.(m3u8|mpd)(\\?[^\\s\"']*)?/gi;" +
+            "    var match;" +
+            "    while ((match = urlRegex.exec(pageText)) !== null) {" +
+            "        videos.push({" +
+            "            url: match[0]," +
+            "            type: 'stream'," +
+            "            title: document.title" +
+            "        });" +
+            "    }" +
+            "    " +
+            "    if (videos.length > 0) {" +
+            "        window.Android.onVideosDetected(JSON.stringify(videos));" +
+            "    }" +
+            "})();";
+        
+        webView.evaluateJavascript(script, null);
     }
     
     private void loadUrl(String url) {
@@ -208,10 +330,43 @@ public class BrowserFragment extends Fragment {
     }
     
     private void showVideoDetectedDialog(VideoDetector.VideoInfo videoInfo) {
-        // TODO: Show video download dialog
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.video_detected)
+            .setMessage(getString(R.string.download_video) + "\n\n" + videoInfo.getTitle())
+            .setPositiveButton(R.string.download, (dialog, which) -> {
+                // Add download to queue
+                addVideoToDownloadQueue(videoInfo);
+            })
+            .setNegativeButton(android.R.string.cancel, null)
+            .setNeutralButton(R.string.preview, (dialog, which) -> {
+                // Preview video
+                previewVideo(videoInfo);
+            })
+            .show();
+    }
+    
+    private void addVideoToDownloadQueue(VideoDetector.VideoInfo videoInfo) {
+        // Create download entity
+        rjv.mg.myidm.data.database.entity.DownloadEntity download = new rjv.mg.myidm.data.database.entity.DownloadEntity();
+        download.setUrl(videoInfo.getUrl());
+        download.setFilename(videoInfo.getTitle() + ".mp4");
+        download.setType(rjv.mg.myidm.domain.model.DownloadType.HTTP_HTTPS);
+        download.setStatus(rjv.mg.myidm.domain.model.DownloadStatus.PENDING);
+        download.setSegmentCount(8); // Default segments
+        
+        // Add to download manager
+        downloadManager.startDownload(download);
+        
         android.widget.Toast.makeText(requireContext(), 
-            getString(R.string.video_detected) + ": " + videoInfo.getUrl(), 
-            android.widget.Toast.LENGTH_LONG).show();
+            getString(R.string.download_started), 
+            android.widget.Toast.LENGTH_SHORT).show();
+    }
+    
+    private void previewVideo(VideoDetector.VideoInfo videoInfo) {
+        // Open video in external player or browser
+        android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_VIEW);
+        intent.setData(android.net.Uri.parse(videoInfo.getUrl()));
+        startActivity(intent);
     }
     
     private void showStreamDetectedDialog(VideoDetector.StreamInfo streamInfo) {

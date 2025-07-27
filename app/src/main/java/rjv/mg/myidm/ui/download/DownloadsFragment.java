@@ -31,8 +31,7 @@ public class DownloadsFragment extends Fragment {
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ChipGroup filterChipGroup;
-    private TextView emptyStateText;
-    private FloatingActionButton fabAddDownload;
+    private View emptyState;
     
     @javax.annotation.Nullable
     @Override
@@ -56,14 +55,12 @@ public class DownloadsFragment extends Fragment {
     }
     
     private void initializeViews(View view) {
-        recyclerView = view.findViewById(R.id.recycler_view);
+        recyclerView = view.findViewById(R.id.downloads_recycler_view);
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
         filterChipGroup = view.findViewById(R.id.filter_chip_group);
-        emptyStateText = view.findViewById(R.id.empty_state_text);
-        fabAddDownload = view.findViewById(R.id.fab_add_download);
+        emptyState = view.findViewById(R.id.empty_state);
         
-        // Setup FAB
-        fabAddDownload.setOnClickListener(v -> showAddDownloadDialog());
+        // FAB is now in MainActivity
     }
     
     private void setupRecyclerView() {
@@ -170,10 +167,10 @@ public class DownloadsFragment extends Fragment {
     
     private void updateEmptyState(boolean isEmpty) {
         if (isEmpty) {
-            emptyStateText.setVisibility(View.VISIBLE);
+            emptyState.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
         } else {
-            emptyStateText.setVisibility(View.GONE);
+            emptyState.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
         }
     }

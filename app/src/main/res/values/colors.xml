@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Legacy colors for compatibility -->
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
@@ -8,6 +9,27 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     
+    <!-- Modern Dark Theme Colors (1DM inspired) -->
+    <color name="primary_blue">#FF1976D2</color>
+    <color name="primary_blue_dark">#FF0D47A1</color>
+    <color name="primary_blue_light">#FF42A5F5</color>
+    
+    <color name="accent_orange">#FFFF5722</color>
+    <color name="accent_orange_dark">#FFD84315</color>
+    <color name="accent_orange_light">#FFFF8A65</color>
+    
+    <!-- Surface colors -->
+    <color name="background_dark">#FF121212</color>
+    <color name="surface_dark">#FF1E1E1E</color>
+    <color name="surface_variant_dark">#FF2D2D2D</color>
+    <color name="surface_elevated_dark">#FF3D3D3D</color>
+    
+    <!-- Text colors -->
+    <color name="on_background_dark">#FFFFFFFF</color>
+    <color name="on_surface_dark">#FFFFFFFF</color>
+    <color name="on_surface_variant_dark">#FFB3B3B3</color>
+    <color name="on_surface_disabled_dark">#FF666666</color>
+    
     <!-- Download Status Colors -->
     <color name="status_downloading">#FF2196F3</color>
     <color name="status_completed">#FF4CAF50</color>
@@ -15,4 +37,26 @@
     <color name="status_paused">#FFFF9800</color>
     <color name="status_cancelled">#FF9E9E9E</color>
     <color name="status_pending">#FF607D8B</color>
+    
+    <!-- Progress colors -->
+    <color name="progress_background">#FF424242</color>
+    <color name="progress_fill">#FF1976D2</color>
+    
+    <!-- Chip colors -->
+    <color name="chip_background_selected">#FF1976D2</color>
+    <color name="chip_background_unselected">#FF2D2D2D</color>
+    <color name="chip_stroke_selected">#FF1976D2</color>
+    <color name="chip_stroke_unselected">#FF424242</color>
+    <color name="chip_text_selected">#FFFFFFFF</color>
+    <color name="chip_text_unselected">#FFB3B3B3</color>
+    
+    <!-- Divider colors -->
+    <color name="divider_dark">#FF424242</color>
+    <color name="divider_light">#FF666666</color>
+    
+    <!-- Error and warning colors -->
+    <color name="error_red">#FFE53935</color>
+    <color name="warning_orange">#FFFF9800</color>
+    <color name="success_green">#FF4CAF50</color>
+    <color name="info_blue">#FF2196F3</color>
 </resources>

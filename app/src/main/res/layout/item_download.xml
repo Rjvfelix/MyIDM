@@ -3,18 +3,15 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/card_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="8dp"
     android:layout_marginVertical="4dp"
+    style="@style/Widget.MyIDM.Card"
     app:cardElevation="2dp"
     app:cardCornerRadius="12dp"
     app:strokeWidth="1dp"
-    app:strokeColor="?attr/colorOutline"
-    android:clickable="true"
-    android:focusable="true"
-    android:foreground="?attr/selectableItemBackground">
+    app:strokeColor="@color/divider_dark">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -35,10 +32,10 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:src="@drawable/ic_file"
-                android:contentDescription="@string/file_type"
                 android:background="@drawable/circle_background"
                 android:padding="8dp"
-                android:tint="?attr/colorOnSurface" />
+                android:tint="@color/primary_blue"
+                android:contentDescription="@string/file_type" />
 
             <!-- File Info -->
             <LinearLayout
@@ -52,35 +49,33 @@
                     android:id="@+id/filename_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="filename.ext"
+                    android:text="@string/sample_filename"
                     android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                    android:textColor="@color/on_surface_dark"
                     android:maxLines="2"
                     android:ellipsize="end"
-                    tools:text="video.mp4" />
+                    tools:text="sample_file.mp4" />
 
                 <TextView
                     android:id="@+id/url_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="https://example.com/file"
+                    android:layout_marginTop="2dp"
+                    android:text="@string/sample_url"
                     android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textColor="@color/on_surface_variant_dark"
                     android:maxLines="1"
                     android:ellipsize="end"
-                    android:layout_marginTop="2dp"
-                    tools:text="https://example.com/video.mp4" />
+                    tools:text="https://example.com/file.mp4" />
 
             </LinearLayout>
 
-            <!-- Type Chip -->
+            <!-- Status Chip -->
             <com.google.android.material.chip.Chip
-                android:id="@+id/type_chip"
+                android:id="@+id/status_chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="HTTP"
-                android:textSize="10sp"
-                app:chipMinHeight="24dp"
-                app:chipMinTouchTargetSize="24dp"
+                android:text="@string/status_downloading"
                 style="@style/Widget.Material3.Chip.Assist" />
 
         </LinearLayout>
@@ -99,84 +94,53 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
 
-                <ProgressBar
+                <com.google.android.material.progressindicator.LinearProgressIndicator
                     android:id="@+id/progress_bar"
-                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                     android:layout_width="0dp"
-                    android:layout_height="8dp"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:progress="45"
-                    android:progressTint="?attr/colorPrimary"
-                    android:progressBackgroundTint="?attr/colorSurfaceVariant" />
+                    android:progress="65"
+                    app:trackColor="@color/progress_background"
+                    app:indicatorColor="@color/progress_fill"
+                    app:trackCornerRadius="4dp" />
 
                 <TextView
                     android:id="@+id/progress_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="45%"
+                    android:layout_marginStart="12dp"
+                    android:text="65%"
                     android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                    android:layout_marginStart="8dp"
-                    tools:text="45%" />
+                    android:textColor="@color/on_surface_variant_dark"
+                    tools:text="65%" />
 
             </LinearLayout>
 
-            <!-- Status and Info Row -->
+            <!-- Speed and Size Info -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginTop="8dp">
 
-                <!-- Status -->
-                <TextView
-                    android:id="@+id/status_text"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Téléchargement en cours"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                    android:textColor="?attr/colorPrimary"
-                    tools:text="Téléchargement en cours" />
-
-                <!-- Speed -->
                 <TextView
                     android:id="@+id/speed_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="1.2 MB/s"
-                    android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    tools:text="1.2 MB/s" />
-
-            </LinearLayout>
-
-            <!-- Size and Date Row -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="4dp">
-
-                <!-- File Size -->
-                <TextView
-                    android:id="@+id/size_text"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="125.5 MB"
+                    android:text="@string/speed_1_2_mb_s"
                     android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    tools:text="125.5 MB" />
+                    android:textColor="@color/on_surface_variant_dark"
+                    tools:text="1.2 MB/s" />
 
-                <!-- Date -->
                 <TextView
-                    android:id="@+id/date_text"
+                    android:id="@+id/size_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="15/12/2024 14:30"
+                    android:text="@string/size_45_2_mb"
                     android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    tools:text="15/12/2024 14:30" />
+                    android:textColor="@color/on_surface_variant_dark"
+                    tools:text="45.2 MB" />
 
             </LinearLayout>
 
@@ -187,56 +151,46 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="end"
-            android:layout_marginTop="12dp">
+            android:layout_marginTop="12dp"
+            android:gravity="end">
 
             <!-- Pause/Resume Button -->
-            <ImageButton
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/pause_resume_button"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_pause"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/pause"
-                android:tint="?attr/colorOnSurfaceVariant"
-                android:visibility="visible"
-                tools:visibility="visible" />
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginEnd="8dp"
+                android:text="@string/pause"
+                android:textSize="12sp"
+                style="@style/Widget.MyIDM.Button.Secondary"
+                app:icon="@drawable/ic_pause"
+                app:iconSize="16dp"
+                app:iconGravity="textStart" />
 
             <!-- Cancel Button -->
-            <ImageButton
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/cancel_button"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_cancel"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/cancel"
-                android:tint="?attr/colorOnSurfaceVariant"
-                android:visibility="visible"
-                tools:visibility="visible" />
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginEnd="8dp"
+                android:text="@string/cancel"
+                android:textSize="12sp"
+                style="@style/Widget.MyIDM.Button.Secondary"
+                app:icon="@drawable/ic_cancel"
+                app:iconSize="16dp"
+                app:iconGravity="textStart" />
 
             <!-- Delete Button -->
-            <ImageButton
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/delete_button"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_delete"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/delete"
-                android:tint="?attr/colorError"
-                android:visibility="gone"
-                tools:visibility="visible" />
-
-            <!-- More Options Button -->
-            <ImageButton
-                android:id="@+id/more_button"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/ic_more_vert"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/more_options"
-                android:tint="?attr/colorOnSurfaceVariant"
-                android:visibility="visible"
-                tools:visibility="visible" />
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="@string/delete"
+                android:textSize="12sp"
+                style="@style/Widget.MyIDM.Button.Secondary"
+                app:icon="@drawable/ic_delete"
+                app:iconSize="16dp"
+                app:iconGravity="textStart" />
 
         </LinearLayout>
 

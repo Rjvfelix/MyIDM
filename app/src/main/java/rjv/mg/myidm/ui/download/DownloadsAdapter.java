@@ -3,9 +3,7 @@ package rjv.mg.myidm.ui.download;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -13,11 +11,12 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.chip.Chip;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 
 import rjv.mg.myidm.R;
@@ -73,34 +72,28 @@ public class DownloadsAdapter extends ListAdapter<DownloadEntity, DownloadsAdapt
         private final TextView urlText;
         private final TextView sizeText;
         private final TextView speedText;
-        private final TextView statusText;
         private final TextView progressText;
-        private final TextView dateText;
-        private final ProgressBar progressBar;
-        private final Chip typeChip;
-        private final ImageButton pauseResumeButton;
-        private final ImageButton cancelButton;
-        private final ImageButton deleteButton;
-        private final ImageButton moreButton;
+        private final LinearProgressIndicator progressBar;
+        private final Chip statusChip;
+        private final MaterialButton pauseResumeButton;
+        private final MaterialButton cancelButton;
+        private final MaterialButton deleteButton;
         
         public DownloadViewHolder(@NonNull View itemView) {
             super(itemView);
             
-            cardView = itemView.findViewById(R.id.card_view);
+            cardView = (MaterialCardView) itemView;
             fileTypeIcon = itemView.findViewById(R.id.file_type_icon);
             filenameText = itemView.findViewById(R.id.filename_text);
             urlText = itemView.findViewById(R.id.url_text);
             sizeText = itemView.findViewById(R.id.size_text);
             speedText = itemView.findViewById(R.id.speed_text);
-            statusText = itemView.findViewById(R.id.status_text);
             progressText = itemView.findViewById(R.id.progress_text);
-            dateText = itemView.findViewById(R.id.date_text);
             progressBar = itemView.findViewById(R.id.progress_bar);
-            typeChip = itemView.findViewById(R.id.type_chip);
+            statusChip = itemView.findViewById(R.id.status_chip);
             pauseResumeButton = itemView.findViewById(R.id.pause_resume_button);
             cancelButton = itemView.findViewById(R.id.cancel_button);
             deleteButton = itemView.findViewById(R.id.delete_button);
-            moreButton = itemView.findViewById(R.id.more_button);
             
             setupClickListeners();
         }
@@ -136,9 +129,7 @@ public class DownloadsAdapter extends ListAdapter<DownloadEntity, DownloadsAdapt
                 }
             });
             
-            moreButton.setOnClickListener(v -> {
-                // TODO: Show more options menu
-            });
+            // More button removed from new design
         }
         
         public void bind(DownloadEntity download) {
@@ -155,8 +146,8 @@ public class DownloadsAdapter extends ListAdapter<DownloadEntity, DownloadsAdapt
             // Set file type icon
             setFileTypeIcon(download.getType());
             
-            // Set type chip
-            typeChip.setText(getTypeDisplayName(download.getType()));
+            // Set status chip
+            statusChip.setText(getStatusDisplayName(download.getStatus()));
             
             // Set size
             if (download.getFileSize() > 0) {
@@ -177,14 +168,9 @@ public class DownloadsAdapter extends ListAdapter<DownloadEntity, DownloadsAdapt
                 speedText.setText("");
             }
             
-            // Set status
-            statusText.setText(getStatusDisplayName(download.getStatus()));
-            statusText.setTextColor(getStatusColor(download.getStatus()));
+            // Status is now shown in chip
             
-            // Set date
-            if (download.getCreatedAt() != null) {
-                dateText.setText(dateFormat.format(download.getCreatedAt()));
-            }
+            // Date removed from new design
             
             // Update action buttons based on status
             updateActionButtons(download.getStatus());
@@ -262,13 +248,13 @@ public class DownloadsAdapter extends ListAdapter<DownloadEntity, DownloadsAdapt
             switch (status) {
                 case DOWNLOADING:
                 case RESUMING:
-                    pauseResumeButton.setImageResource(R.drawable.ic_pause);
+                    pauseResumeButton.setIcon(itemView.getContext().getDrawable(R.drawable.ic_pause));
                     pauseResumeButton.setVisibility(View.VISIBLE);
                     cancelButton.setVisibility(View.VISIBLE);
                     deleteButton.setVisibility(View.GONE);
                     break;
                 case PAUSED:
-                    pauseResumeButton.setImageResource(R.drawable.ic_play);
+                    pauseResumeButton.setIcon(itemView.getContext().getDrawable(R.drawable.ic_play));
                     pauseResumeButton.setVisibility(View.VISIBLE);
                     cancelButton.setVisibility(View.VISIBLE);
                     deleteButton.setVisibility(View.GONE);

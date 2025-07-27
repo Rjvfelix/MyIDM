@@ -1,4 +1,12 @@
 <resources>
-    <style name="Widget.Material3.Chip.Filter" parent="Widget.MaterialComponents.Chip.Filter" />
-    <style name="Widget.Material3.Chip.Assist" parent="Widget.MaterialComponents.Chip.Entry" />
+    <!-- Custom styles for specific components -->
+    <style name="Widget.MyIDM.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/primary_blue</item>
+        <item name="hintTextColor">@color/primary_blue</item>
+    </style>
+    
+    <style name="Widget.MyIDM.ProgressIndicator" parent="Widget.Material3.LinearProgressIndicator">
+        <item name="trackColor">@color/progress_background</item>
+        <item name="indicatorColor">@color/progress_fill</item>
+    </style>
 </resources> 

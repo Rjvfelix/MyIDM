@@ -1,144 +1,127 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout 
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/background_dark"
+    tools:context=".ui.download.DownloadsFragment">
 
+    <!-- App Bar with Filter Chips -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
+        android:background="@color/surface_dark"
+        android:paddingTop="4dp"
         app:elevation="0dp">
 
+        <!-- Filter Chips -->
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/filter_chip_group"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginVertical="8dp"
+            android:padding="8dp"
             app:singleSelection="true"
-            app:selectionRequired="true"
-            tools:ignore="MissingConstraints">
+            app:selectionRequired="true">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_all"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tous"
-                android:checkable="true"
+                android:text="@string/filter_all"
                 android:checked="true"
-                style="@style/Widget.Material3.Chip.Filter" />
+                style="@style/Widget.MyIDM.Chip.Filter" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_downloading"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="En cours"
-                android:checkable="true"
-                style="@style/Widget.Material3.Chip.Filter" />
+                android:text="@string/filter_downloading"
+                style="@style/Widget.MyIDM.Chip.Filter" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_paused"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="En pause"
-                android:checkable="true"
-                style="@style/Widget.Material3.Chip.Filter" />
+                android:text="@string/filter_paused"
+                style="@style/Widget.MyIDM.Chip.Filter" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_completed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Terminés"
-                android:checkable="true"
-                style="@style/Widget.Material3.Chip.Filter" />
+                android:text="@string/filter_completed"
+                style="@style/Widget.MyIDM.Chip.Filter" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_failed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Échecs"
-                android:checkable="true"
-                style="@style/Widget.Material3.Chip.Filter" />
+                android:text="@string/filter_failed"
+                style="@style/Widget.MyIDM.Chip.Filter" />
 
         </com.google.android.material.chip.ChipGroup>
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <!-- SwipeRefreshLayout with RecyclerView -->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <FrameLayout
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/downloads_recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clipToPadding="false"
-                android:paddingTop="8dp"
-                android:paddingBottom="80dp"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:listitem="@layout/item_download" />
-
-            <LinearLayout
-                android:id="@+id/empty_state"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="32dp"
-                android:visibility="gone"
-                tools:visibility="visible">
-
-                <ImageView
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
-                    android:src="@drawable/ic_download_empty"
-                    android:alpha="0.5"
-                    android:contentDescription="@string/downloads" />
-
-                <TextView
-                    android:id="@+id/empty_state_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="@string/no_downloads_yet"
-                    android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
-                    android:textAlignment="center"
-                    android:alpha="0.7" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/tap_fab_to_add_download"
-                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                    android:textAlignment="center"
-                    android:alpha="0.5" />
-
-            </LinearLayout>
-
-        </FrameLayout>
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingTop="8dp"
+            android:paddingBottom="80dp"
+            android:scrollbars="vertical"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/item_download" />
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_add_download"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:contentDescription="@string/add_download"
-        android:src="@drawable/ic_add"
-        app:backgroundTint="?attr/colorPrimary"
-        app:tint="?attr/colorOnPrimary"
-        app:fabSize="normal" />
+    <!-- Empty State -->
+    <LinearLayout
+        android:id="@+id/empty_state"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="32dp"
+        android:visibility="gone"
+        android:background="@color/background_dark">
+
+        <ImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/ic_download"
+            android:alpha="0.3"
+            android:tint="@color/on_surface_variant_dark"
+            android:contentDescription="@string/no_downloads" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/no_downloads"
+            android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
+            android:textColor="@color/on_surface_variant_dark"
+            android:gravity="center" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/no_downloads_description"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+            android:textColor="@color/on_surface_variant_dark"
+            android:gravity="center" />
+
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout> 
