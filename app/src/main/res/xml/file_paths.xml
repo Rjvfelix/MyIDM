@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <!-- External storage -->
+    <external-path name="external" path="." />
+    
+    <!-- Downloads directory -->
+    <external-path name="downloads" path="Download/" />
+    
+    <!-- MyIDM downloads directory -->
+    <external-path name="myidm_downloads" path="Download/MyIDM/" />
+    
+    <!-- Torrents directory -->
+    <external-path name="torrents" path="Download/MyIDM/Torrents/" />
+    
+    <!-- Streaming directory -->
+    <external-path name="streaming" path="Download/MyIDM/Streaming/" />
+    
+    <!-- Social media directory -->
+    <external-path name="social" path="Download/MyIDM/Social/" />
+    
+    <!-- Cache directory -->
+    <cache-path name="cache" path="." />
+    
+    <!-- Files directory -->
+    <files-path name="files" path="." />
+    
+</paths> 

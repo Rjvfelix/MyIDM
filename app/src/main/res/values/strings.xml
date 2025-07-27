@@ -1,0 +1,214 @@
+<resources>
+    <string name="app_name">MyIDM</string>
+    
+    <!-- Navigation -->
+    <string name="downloads">Téléchargements</string>
+    <string name="browser">Navigateur</string>
+    <string name="settings">Paramètres</string>
+    
+    <!-- Actions -->
+    <string name="add_download">Ajouter un téléchargement</string>
+    <string name="search">Rechercher</string>
+    <string name="more_options">Plus d\'options</string>
+    <string name="clear_completed">Effacer les terminés</string>
+    <string name="export_downloads">Exporter les téléchargements</string>
+    <string name="import_downloads">Importer les téléchargements</string>
+    <string name="pause_all">Tout mettre en pause</string>
+    <string name="resume_all">Tout reprendre</string>
+    <string name="retry">Réessayer</string>
+    <string name="cancel">Annuler</string>
+    <string name="delete">Supprimer</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Reprendre</string>
+    
+    <!-- Download Status -->
+    <string name="status_pending">En attente</string>
+    <string name="status_queued">En file d\'attente</string>
+    <string name="status_downloading">Téléchargement en cours</string>
+    <string name="status_paused">En pause</string>
+    <string name="status_completed">Terminé</string>
+    <string name="status_failed">Échec</string>
+    <string name="status_cancelled">Annulé</string>
+    
+    <!-- Messages -->
+    <string name="welcome_message">Bienvenue dans MyIDM !</string>
+    <string name="permissions_required">Permissions requises</string>
+    <string name="permissions_explanation">MyIDM a besoin d\'accéder au stockage pour sauvegarder vos téléchargements.</string>
+    <string name="download_started">Téléchargement démarré</string>
+    <string name="download_completed">Téléchargement terminé</string>
+    <string name="download_failed">Échec du téléchargement</string>
+    <string name="download_paused">Téléchargement mis en pause</string>
+    <string name="download_resumed">Téléchargement repris</string>
+    <string name="download_cancelled">Téléchargement annulé</string>
+    <string name="no_downloads_yet">Aucun téléchargement</string>
+    <string name="tap_fab_to_add_download">Appuyez sur le bouton + pour ajouter un téléchargement</string>
+    
+    <!-- Browser -->
+    <string name="browser_title">Navigateur intégré</string>
+    <string name="browser_url_hint">Entrez une URL</string>
+    <string name="browser_go">Aller</string>
+    <string name="browser_back">Retour</string>
+    <string name="browser_forward">Suivant</string>
+    <string name="browser_refresh">Actualiser</string>
+    <string name="browser_share">Partager</string>
+    <string name="browser_bookmark">Marquer</string>
+    <string name="browser_download">Télécharger</string>
+    
+    <!-- Video Detection -->
+    <string name="video_detected">Vidéo détectée</string>
+    <string name="multiple_videos_detected">Vidéos multiples détectées</string>
+    <string name="stream_detected">Flux de streaming détecté</string>
+    <string name="download_video">Télécharger la vidéo</string>
+    <string name="select_quality">Sélectionner la qualité</string>
+    <string name="quality_auto">Automatique</string>
+    <string name="quality_1080p">1080p</string>
+    <string name="quality_720p">720p</string>
+    <string name="quality_480p">480p</string>
+    <string name="quality_360p">360p</string>
+    
+    <!-- Settings -->
+    <string name="settings_general">Général</string>
+    <string name="settings_downloads">Téléchargements</string>
+    <string name="settings_browser">Navigateur</string>
+    <string name="settings_advanced">Avancé</string>
+    <string name="settings_about">À propos</string>
+    
+    <!-- Download Settings -->
+    <string name="max_concurrent_downloads">Téléchargements simultanés max</string>
+    <string name="max_concurrent_segments">Segments simultanés max</string>
+    <string name="download_directory">Répertoire de téléchargement</string>
+    <string name="auto_start_downloads">Démarrer automatiquement</string>
+    <string name="wifi_only">WiFi uniquement</string>
+    <string name="battery_optimization">Optimisation batterie</string>
+    <string name="notification_sound">Son de notification</string>
+    <string name="download_speed_limit">Limite de vitesse</string>
+    <string name="upload_speed_limit">Limite d\'upload</string>
+    
+    <!-- Browser Settings -->
+    <string name="ad_blocking">Blocage de publicités</string>
+    <string name="javascript_enabled">JavaScript activé</string>
+    <string name="cookies_enabled">Cookies activés</string>
+    <string name="user_agent">User Agent</string>
+    <string name="default_search_engine">Moteur de recherche par défaut</string>
+    <string name="homepage">Page d\'accueil</string>
+    <string name="clear_browser_data">Effacer les données du navigateur</string>
+    
+    <!-- Advanced Settings -->
+    <string name="encryption_enabled">Chiffrement activé</string>
+    <string name="biometric_auth">Authentification biométrique</string>
+    <string name="auto_cleanup">Nettoyage automatique</string>
+    <string name="debug_mode">Mode debug</string>
+    <string name="export_logs">Exporter les logs</string>
+    <string name="reset_settings">Réinitialiser les paramètres</string>
+    
+    <!-- About -->
+    <string name="about_version">Version</string>
+    <string name="about_license">Licence</string>
+    <string name="about_privacy">Politique de confidentialité</string>
+    <string name="about_terms">Conditions d\'utilisation</string>
+    <string name="about_contact">Contact</string>
+    <string name="about_rate">Évaluer l\'application</string>
+    <string name="about_share">Partager l\'application</string>
+    
+    <!-- Errors -->
+    <string name="error_network">Erreur réseau</string>
+    <string name="error_storage">Erreur de stockage</string>
+    <string name="error_permission">Permission refusée</string>
+    <string name="error_unknown">Erreur inconnue</string>
+    <string name="error_download_failed">Échec du téléchargement</string>
+    <string name="error_file_not_found">Fichier non trouvé</string>
+    <string name="error_insufficient_storage">Espace de stockage insuffisant</string>
+    <string name="error_url_required">URL requise</string>
+    <string name="error_invalid_url">URL invalide</string>
+    <string name="error_filename_required">Nom de fichier requis</string>
+    <string name="error_adding_download">Erreur lors de l\'ajout du téléchargement</string>
+    
+    <!-- Dialog -->
+    <string name="enter_url">Entrez l\'URL</string>
+    <string name="filename">Nom du fichier</string>
+    <string name="download_added_successfully">Téléchargement ajouté avec succès</string>
+    
+    <!-- Confirmations -->
+    <string name="confirm_delete">Confirmer la suppression</string>
+    <string name="confirm_delete_message">Êtes-vous sûr de vouloir supprimer ce téléchargement ?</string>
+    <string name="confirm_clear_completed">Confirmer l\'effacement</string>
+    <string name="confirm_clear_completed_message">Êtes-vous sûr de vouloir effacer tous les téléchargements terminés ?</string>
+    <string name="confirm_reset_settings">Confirmer la réinitialisation</string>
+    <string name="confirm_reset_settings_message">Êtes-vous sûr de vouloir réinitialiser tous les paramètres ?</string>
+    
+    <!-- Units -->
+    <string name="unit_bytes">B</string>
+    <string name="unit_kilobytes">KB</string>
+    <string name="unit_megabytes">MB</string>
+    <string name="unit_gigabytes">GB</string>
+    <string name="unit_per_second">/s</string>
+    
+    <!-- Time -->
+    <string name="time_remaining">Temps restant</string>
+    <string name="time_elapsed">Temps écoulé</string>
+    <string name="time_unknown">Inconnu</string>
+    
+    <!-- File Types -->
+    <string name="file_type">Type de fichier</string>
+    <string name="file_type_video">Vidéo</string>
+    <string name="file_type_audio">Audio</string>
+    <string name="file_type_document">Document</string>
+    <string name="file_type_image">Image</string>
+    <string name="file_type_archive">Archive</string>
+    <string name="file_type_other">Autre</string>
+    
+    <!-- Social Media -->
+    <string name="youtube">YouTube</string>
+    <string name="facebook">Facebook</string>
+    <string name="instagram">Instagram</string>
+    <string name="tiktok">TikTok</string>
+    <string name="twitter">Twitter</string>
+    
+    <!-- Premium Features -->
+    <string name="premium_feature">Fonctionnalité Premium</string>
+    <string name="premium_upgrade">Passer à Premium</string>
+    <string name="premium_unlimited_downloads">Téléchargements illimités</string>
+    <string name="premium_priority_support">Support prioritaire</string>
+    <string name="premium_advanced_features">Fonctionnalités avancées</string>
+    
+    <!-- Settings Cards -->
+    <string name="download_settings">Paramètres de téléchargement</string>
+    <string name="download_settings_description">Limites, répertoires, planification</string>
+    <string name="browser_settings">Paramètres du navigateur</string>
+    <string name="browser_settings_description">Bloqueur de pubs, cookies, user agent</string>
+    <string name="storage_settings">Paramètres de stockage</string>
+    <string name="storage_settings_description">Répertoires, nettoyage, quotas</string>
+    <string name="security_settings">Paramètres de sécurité</string>
+    <string name="security_settings_description">Chiffrement, biométrie, permissions</string>
+    <string name="about">À propos</string>
+    <string name="about_app">À propos de l\'application</string>
+    <string name="about_app_description">Version, licence, informations</string>
+    <string name="rate_app">Évaluer l\'application</string>
+    <string name="rate_app_description">Donnez votre avis sur le Play Store</string>
+    <string name="privacy_policy">Politique de confidentialité</string>
+    <string name="privacy_policy_description">Comment nous protégeons vos données</string>
+    <string name="terms_of_service">Conditions d\'utilisation</string>
+    <string name="terms_of_service_description">Conditions d\'utilisation de l\'application</string>
+    <string name="coming_soon">Bientôt disponible</string>
+    
+    <!-- Browser Navigation -->
+    <string name="back">Retour</string>
+    <string name="forward">Suivant</string>
+    <string name="refresh">Actualiser</string>
+    <string name="share">Partager</string>
+    <string name="bookmark">Marquer</string>
+    <string name="download">Télécharger</string>
+    
+    <!-- Services -->
+    <string name="torrent_service_channel_name">Service Torrent</string>
+    <string name="torrent_service_channel_description">Notifications pour les téléchargements torrent</string>
+    <string name="torrent_service_title">Service Torrent actif</string>
+    <string name="torrent_service_description">Gestion des téléchargements torrent en arrière-plan</string>
+    
+    <string name="loading">Chargement...</string>
+    <string name="error_loading_page">Erreur lors du chargement de la page</string>
+    <string name="share_via">Partager via</string>
+    <string name="bookmark_added">Favori ajouté</string>
+    <string name="download_options">Options de téléchargement</string>
+    
+</resources>

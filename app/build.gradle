@@ -1,0 +1,110 @@
+plugins {
+    alias(libs.plugins.android.application)
+    id 'dagger.hilt.android.plugin'
+}
+
+android {
+    namespace 'rjv.mg.myidm'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId "rjv.mg.myidm"
+        minSdk 26
+        targetSdk 36
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        
+        // Room schema location
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += [
+                    "room.schemaLocation": "$projectDir/schemas".toString(),
+                    "room.incremental": "true"
+                ]
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+    
+    buildFeatures {
+        viewBinding true
+        dataBinding true
+    }
+    
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/ASL2.0'
+        exclude 'META-INF/annotations-12.0.jar'
+        exclude 'META-INF/annotations-23.0.0.jar'
+    }
+}
+
+dependencies {
+    // Core Android
+    implementation libs.appcompat
+    implementation libs.material
+    implementation 'androidx.core:core:1.12.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    
+    // Architecture Components
+    implementation libs.room.runtime
+    annotationProcessor libs.room.compiler
+    
+    implementation libs.work.runtime
+    implementation libs.lifecycle.viewmodel
+    implementation libs.lifecycle.livedata
+    implementation libs.lifecycle.runtime
+    
+    implementation libs.navigation.fragment
+    implementation libs.navigation.ui
+    
+    // Media & Network
+    implementation libs.exoplayer.core
+    implementation libs.exoplayer.ui
+    
+    implementation libs.retrofit
+    implementation libs.retrofit.gson
+    implementation libs.okhttp
+    implementation libs.okhttp.logging
+    
+    // Dependency Injection
+    implementation libs.dagger
+    implementation libs.hilt.android
+    annotationProcessor libs.dagger.compiler
+    annotationProcessor libs.hilt.compiler
+    
+    // Image Loading
+    implementation libs.glide
+    annotationProcessor libs.glide.compiler
+    
+    // Data Storage
+    implementation libs.datastore.preferences
+    
+    // Security & Permissions
+    implementation libs.biometric
+    
+    // Testing
+    testImplementation libs.junit
+    androidTestImplementation libs.ext.junit
+    androidTestImplementation libs.espresso.core
+}
