@@ -6,8 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -17,6 +15,9 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import dagger.hilt.android.AndroidEntryPoint;
 import rjv.mg.myidm.R;
@@ -33,14 +34,14 @@ public class DownloadsFragment extends Fragment {
     private TextView emptyStateText;
     private FloatingActionButton fabAddDownload;
     
-    @Nullable
+    @javax.annotation.Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@Nonnull LayoutInflater inflater, @javax.annotation.Nullable ViewGroup container, @javax.annotation.Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_downloads, container, false);
     }
     
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@Nonnull View view, @javax.annotation.Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         
         // Initialize ViewModel

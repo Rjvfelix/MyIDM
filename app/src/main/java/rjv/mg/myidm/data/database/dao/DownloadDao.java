@@ -106,12 +106,8 @@ public interface DownloadDao {
     @Query("SELECT COUNT(*) FROM downloads WHERE status IN ('DOWNLOADING', 'RESUMING')")
     int getActiveDownloadCount();
     
-    // Stub pour compatibilité ViewModel (non supporté nativement par Room)
-    default androidx.lifecycle.LiveData<Integer> getActiveDownloadsCountLive() {
-        androidx.lifecycle.MutableLiveData<Integer> liveData = new androidx.lifecycle.MutableLiveData<>();
-        liveData.setValue(getActiveDownloadCount());
-        return liveData;
-    }
+    @Query("SELECT COUNT(*) FROM downloads WHERE status IN ('DOWNLOADING', 'RESUMING')")
+    LiveData<Integer> getActiveDownloadsCountLive();
     
     // Cleanup queries
     @Query("DELETE FROM downloads WHERE status = 'COMPLETED' AND completed_at < :beforeDate")

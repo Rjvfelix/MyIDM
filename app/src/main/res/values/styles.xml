@@ -1,0 +1,4 @@
+<resources>
+    <style name="Widget.Material3.Chip.Filter" parent="Widget.MaterialComponents.Chip.Filter" />
+    <style name="Widget.Material3.Chip.Assist" parent="Widget.MaterialComponents.Chip.Entry" />
+</resources> 
