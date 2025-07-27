@@ -36,6 +36,7 @@
     <string name="permissions_explanation">MyIDM a besoin d\'accéder au stockage pour sauvegarder vos téléchargements.</string>
     <string name="download_started">Téléchargement démarré</string>
     <string name="scanning_for_videos">Recherche de vidéos...</string>
+    <string name="video_playing">Vidéo en cours de lecture</string>
     <string name="download_completed">Téléchargement terminé</string>
     <string name="download_failed">Échec du téléchargement</string>
     <string name="download_paused">Téléchargement mis en pause</string>

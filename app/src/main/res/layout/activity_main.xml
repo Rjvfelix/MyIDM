@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/surface_dark"
-        android:paddingTop="28dp"
+        android:paddingTop="38dp"
         app:elevation="0dp">
 
         <!-- MaterialToolbar -->

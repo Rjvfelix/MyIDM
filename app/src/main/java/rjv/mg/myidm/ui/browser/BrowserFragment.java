@@ -6,6 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -36,9 +38,11 @@ public class BrowserFragment extends Fragment {
     private ImageButton downloadButton;
     private ProgressBar progressBar;
     private TextView statusText;
+    private TextView downloadBadge;
     
     private VideoDetector videoDetector;
     private boolean canGoBack = false;
+    private int detectedVideosCount = 0;
     
     @Inject
     rjv.mg.myidm.domain.downloader.DownloadManager downloadManager;
@@ -77,6 +81,7 @@ public class BrowserFragment extends Fragment {
         downloadButton = view.findViewById(R.id.download_button);
         progressBar = view.findViewById(R.id.progress_bar);
         statusText = view.findViewById(R.id.status_text);
+        downloadBadge = view.findViewById(R.id.download_badge);
     }
     
     private void setupWebView() {
@@ -89,25 +94,40 @@ public class BrowserFragment extends Fragment {
         webView.getSettings().setSupportZoom(true);
         webView.getSettings().setDefaultTextEncodingName("utf-8");
         
+        // Enable network interception
+        webView.getSettings().setCacheMode(android.webkit.WebSettings.LOAD_NO_CACHE);
+        
         // Add JavaScript interface for video detection
         webView.addJavascriptInterface(new Object() {
             @android.webkit.JavascriptInterface
             public void onVideosDetected(String videoData) {
                 try {
                     org.json.JSONArray jsonArray = new org.json.JSONArray(videoData);
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        org.json.JSONObject video = jsonArray.getJSONObject(i);
-                        String url = video.getString("url");
-                        String type = video.getString("type");
-                        String title = video.getString("title");
-                        
-                        VideoDetector.VideoInfo videoInfo = new VideoDetector.VideoInfo(url);
-                        videoInfo.setType(type);
-                        videoInfo.setTitle(title);
-                        requireActivity().runOnUiThread(() -> {
-                            showVideoDetectedDialog(videoInfo);
-                        });
-                    }
+                    detectedVideosCount = jsonArray.length();
+                    
+                    requireActivity().runOnUiThread(() -> {
+                        updateDownloadBadge(detectedVideosCount);
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            
+            @android.webkit.JavascriptInterface
+            public void onVideoStarted(String videoData) {
+                try {
+                    org.json.JSONObject video = new org.json.JSONObject(videoData);
+                    String url = video.getString("url");
+                    String title = video.getString("title");
+                    
+                    VideoDetector.VideoInfo videoInfo = new VideoDetector.VideoInfo(url);
+                    videoInfo.setTitle(title);
+                    requireActivity().runOnUiThread(() -> {
+                        // Show notification that video is playing
+                        android.widget.Toast.makeText(requireContext(), 
+                            getString(R.string.video_playing) + ": " + title, 
+                            android.widget.Toast.LENGTH_SHORT).show();
+                    });
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -121,6 +141,10 @@ public class BrowserFragment extends Fragment {
                 progressBar.setVisibility(View.VISIBLE);
                 statusText.setText(R.string.loading);
                 updateNavigationButtons();
+                
+                // Reset video count for new page
+                detectedVideosCount = 0;
+                updateDownloadBadge(0);
             }
             
             @Override
@@ -141,7 +165,69 @@ public class BrowserFragment extends Fragment {
                 progressBar.setVisibility(View.GONE);
                 statusText.setText(R.string.error_loading_page);
             }
+            
+            @Override
+            public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+                String url = request.getUrl().toString();
+                
+                // Detect video URLs but don't show dialog automatically
+                if (isVideoUrl(url)) {
+                    requireActivity().runOnUiThread(() -> {
+                        detectedVideosCount++;
+                        updateDownloadBadge(detectedVideosCount);
+                    });
+                }
+                
+                return super.shouldInterceptRequest(view, request);
+            }
+            
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                String url = request.getUrl().toString();
+                
+                // Detect video URLs in navigation but don't show dialog automatically
+                if (isVideoUrl(url)) {
+                    requireActivity().runOnUiThread(() -> {
+                        detectedVideosCount++;
+                        updateDownloadBadge(detectedVideosCount);
+                    });
+                    return true; // Intercept the URL
+                }
+                
+                return false;
+            }
         });
+    }
+    
+    private boolean isVideoUrl(String url) {
+        if (url == null) return false;
+        
+        // Video file extensions
+        String[] videoExtensions = {".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm", ".m4v", ".3gp", ".ts"};
+        for (String ext : videoExtensions) {
+            if (url.toLowerCase().contains(ext)) return true;
+        }
+        
+        // Streaming URLs
+        if (url.contains(".m3u8") || url.contains(".mpd")) return true;
+        
+        // Video CDN patterns
+        String[] videoPatterns = {
+            "video", "media", "stream", "play", "content", "asset"
+        };
+        for (String pattern : videoPatterns) {
+            if (url.toLowerCase().contains(pattern)) return true;
+        }
+        
+        return false;
+    }
+    
+    private String getVideoType(String url) {
+        if (url.contains(".m3u8")) return "application/x-mpegURL";
+        if (url.contains(".mpd")) return "application/dash+xml";
+        if (url.contains(".mp4")) return "video/mp4";
+        if (url.contains(".webm")) return "video/webm";
+        return "video/mp4";
     }
     
     private void setupListeners() {
@@ -159,12 +245,108 @@ public class BrowserFragment extends Fragment {
         shareButton.setOnClickListener(v -> sharePage());
         bookmarkButton.setOnClickListener(v -> bookmarkPage());
         downloadButton.setOnClickListener(v -> {
-            // Trigger video detection manually
-            injectVideoDetectionScript();
-            android.widget.Toast.makeText(requireContext(), 
-                R.string.scanning_for_videos, 
-                android.widget.Toast.LENGTH_SHORT).show();
+            if (detectedVideosCount > 0) {
+                // Show quality selection dialog for detected videos
+                showQualitySelectionDialog(null);
+            } else {
+                // Force video detection without showing dialog
+                forceVideoDetection();
+                android.widget.Toast.makeText(requireContext(), 
+                    R.string.scanning_for_videos, 
+                    android.widget.Toast.LENGTH_SHORT).show();
+            }
         });
+    }
+    
+    private void forceVideoDetection() {
+        // Inject aggressive video detection script
+        String aggressiveScript = "javascript:" +
+            "(function() {" +
+            "    console.log('Force detecting videos...');" +
+            "    " +
+            "    // Method 1: Find all video elements" +
+            "    var videos = document.querySelectorAll('video');" +
+            "    console.log('Found ' + videos.length + ' video elements');" +
+            "    " +
+            "    for (var i = 0; i < videos.length; i++) {" +
+            "        var video = videos[i];" +
+            "        var url = video.src || video.currentSrc;" +
+            "        if (url) {" +
+            "            console.log('Video URL found:', url);" +
+            "            window.Android.onVideosDetected(JSON.stringify([{" +
+            "                url: url," +
+            "                type: 'video/mp4'," +
+            "                title: document.title" +
+            "            }]));" +
+            "        }" +
+            "    }" +
+            "    " +
+            "    // Method 2: Find all source elements" +
+            "    var sources = document.querySelectorAll('source');" +
+            "    console.log('Found ' + sources.length + ' source elements');" +
+            "    " +
+            "    for (var i = 0; i < sources.length; i++) {" +
+            "        var source = sources[i];" +
+            "        var url = source.src;" +
+            "        if (url) {" +
+            "            console.log('Source URL found:', url);" +
+            "            window.Android.onVideosDetected(JSON.stringify([{" +
+            "                url: url," +
+            "                type: source.type || 'video/mp4'," +
+            "                title: document.title" +
+            "            }]));" +
+            "        }" +
+            "    }" +
+            "    " +
+            "    // Method 3: Search in page content" +
+            "    var pageText = document.body.innerText;" +
+            "    var urlRegex = /https?:\\/\\/[^\\s\"']*\\.(mp4|webm|m3u8|mpd)(\\?[^\\s\"']*)?/gi;" +
+            "    var match;" +
+            "    while ((match = urlRegex.exec(pageText)) !== null) {" +
+            "        console.log('URL found in page text:', match[0]);" +
+            "        window.Android.onVideosDetected(JSON.stringify([{" +
+            "            url: match[0]," +
+            "            type: 'video/mp4'," +
+            "            title: document.title" +
+            "        }]));" +
+            "    }" +
+            "    " +
+            "    // Method 4: Check iframes" +
+            "    var iframes = document.querySelectorAll('iframe');" +
+            "    console.log('Found ' + iframes.length + ' iframe elements');" +
+            "    " +
+            "    for (var i = 0; i < iframes.length; i++) {" +
+            "        var iframe = iframes[i];" +
+            "        var src = iframe.src;" +
+            "        if (src && (src.includes('video') || src.includes('player'))) {" +
+            "            console.log('Video iframe found:', src);" +
+            "            window.Android.onVideosDetected(JSON.stringify([{" +
+            "                url: src," +
+            "                type: 'embed'," +
+            "                title: document.title" +
+            "            }]));" +
+            "        }" +
+            "    }" +
+            "    " +
+            "    // Method 5: Check for video players" +
+            "    var players = document.querySelectorAll('[class*=\"player\"], [id*=\"player\"], [class*=\"video\"], [id*=\"video\"]');" +
+            "    console.log('Found ' + players.length + ' potential video players');" +
+            "    " +
+            "    for (var i = 0; i < players.length; i++) {" +
+            "        var player = players[i];" +
+            "        var video = player.querySelector('video');" +
+            "        if (video && video.src) {" +
+            "            console.log('Video in player found:', video.src);" +
+            "            window.Android.onVideosDetected(JSON.stringify([{" +
+            "                url: video.src," +
+            "                type: 'video/mp4'," +
+            "                title: document.title" +
+            "            }]));" +
+            "        }" +
+            "    }" +
+            "})();";
+        
+        webView.evaluateJavascript(aggressiveScript, null);
     }
     
     private void setupVideoDetection() {
@@ -190,84 +372,156 @@ public class BrowserFragment extends Fragment {
         String script = "javascript:" +
             "(function() {" +
             "    var videos = [];" +
+            "    var videoStreams = [];" +
+            "    var monitoredVideos = new Set();" +
             "    " +
-            "    // Detect HTML5 video elements" +
-            "    var videoElements = document.querySelectorAll('video');" +
-            "    for (var i = 0; i < videoElements.length; i++) {" +
-            "        var video = videoElements[i];" +
-            "        var sources = video.querySelectorAll('source');" +
-            "        " +
-            "        if (sources.length > 0) {" +
-            "            for (var j = 0; j < sources.length; j++) {" +
-            "                var source = sources[j];" +
-            "                if (source.src) {" +
-            "                    videos.push({" +
-            "                        url: source.src," +
-            "                        type: source.type || 'video/mp4'," +
-            "                        title: video.title || document.title," +
-            "                        width: video.videoWidth," +
-            "                        height: video.videoHeight" +
+            "    // Monitor video elements for changes" +
+            "    function monitorVideos() {" +
+            "        var videoElements = document.querySelectorAll('video');" +
+            "        for (var i = 0; i < videoElements.length; i++) {" +
+            "            var video = videoElements[i];" +
+            "            " +
+            "            // Get current playing source" +
+            "            if (video.src || video.currentSrc) {" +
+            "                var currentUrl = video.src || video.currentSrc;" +
+            "                var videoInfo = {" +
+            "                    url: currentUrl," +
+            "                    type: video.type || 'video/mp4'," +
+            "                    title: video.title || document.title," +
+            "                    width: video.videoWidth," +
+            "                    height: video.videoHeight," +
+            "                    duration: video.duration," +
+            "                    isPlaying: !video.paused," +
+            "                    currentTime: video.currentTime" +
+            "                };" +
+            "                " +
+            "                // Check if this is a new video" +
+            "                var exists = videos.find(v => v.url === currentUrl);" +
+            "                if (!exists) {" +
+            "                    videos.push(videoInfo);" +
+            "                    console.log('New video detected:', videoInfo);" +
+            "                }" +
+            "                " +
+            "                // Monitor for video start" +
+            "                if (!monitoredVideos.has(currentUrl)) {" +
+            "                    monitoredVideos.add(currentUrl);" +
+            "                    " +
+            "                    // Listen for play event" +
+            "                    video.addEventListener('play', function() {" +
+            "                        console.log('Video started playing:', videoInfo);" +
+            "                        window.Android.onVideoStarted(JSON.stringify(videoInfo));" +
+            "                    });" +
+            "                    " +
+            "                    // Listen for loadstart event" +
+            "                    video.addEventListener('loadstart', function() {" +
+            "                        console.log('Video loading started:', videoInfo);" +
+            "                        window.Android.onVideoStarted(JSON.stringify(videoInfo));" +
             "                    });" +
             "                }" +
             "            }" +
-            "        } else if (video.src) {" +
-            "            videos.push({" +
-            "                url: video.src," +
-            "                type: video.type || 'video/mp4'," +
-            "                title: video.title || document.title," +
-            "                width: video.videoWidth," +
-            "                height: video.videoHeight" +
-            "            });" +
-            "        }" +
-            "    }" +
-            "    " +
-            "    // Detect iframe embeds (YouTube, Vimeo, etc.)" +
-            "    var iframes = document.querySelectorAll('iframe');" +
-            "    for (var i = 0; i < iframes.length; i++) {" +
-            "        var iframe = iframes[i];" +
-            "        if (iframe.src) {" +
-            "            var src = iframe.src.toLowerCase();" +
-            "            if (src.includes('youtube.com') || src.includes('youtu.be') || " +
-            "                src.includes('vimeo.com') || src.includes('dailymotion.com') || " +
-            "                src.includes('facebook.com') || src.includes('instagram.com')) {" +
-            "                videos.push({" +
-            "                    url: iframe.src," +
-            "                    type: 'embed'," +
-            "                    title: iframe.title || document.title" +
-            "                });" +
+            "            " +
+            "            // Get all available sources" +
+            "            var sources = video.querySelectorAll('source');" +
+            "            for (var j = 0; j < sources.length; j++) {" +
+            "                var source = sources[j];" +
+            "                if (source.src) {" +
+            "                    var streamInfo = {" +
+            "                        url: source.src," +
+            "                        type: source.type || 'video/mp4'," +
+            "                        title: video.title || document.title," +
+            "                        quality: source.getAttribute('data-quality') || 'auto'," +
+            "                        size: source.getAttribute('data-size') || ''," +
+            "                        bitrate: source.getAttribute('data-bitrate') || ''" +
+            "                    };" +
+            "                    videoStreams.push(streamInfo);" +
+            "                }" +
             "            }" +
             "        }" +
             "    }" +
             "    " +
-            "    // Detect video links in page" +
-            "    var links = document.querySelectorAll('a[href]');" +
-            "    for (var i = 0; i < links.length; i++) {" +
-            "        var link = links[i];" +
-            "        var href = link.href.toLowerCase();" +
-            "        if (href.match(/\\.(mp4|avi|mkv|mov|wmv|flv|webm|m4v|3gp|ts|m3u8|mpd)(\\?.*)?$/)) {" +
-            "            videos.push({" +
-            "                url: link.href," +
-            "                type: 'direct'," +
-            "                title: link.textContent.trim() || document.title" +
-            "            });" +
+            "    // Monitor network requests for video streams" +
+            "    function monitorNetworkRequests() {" +
+            "        if (window.performance && window.performance.getEntriesByType) {" +
+            "            var entries = window.performance.getEntriesByType('resource');" +
+            "            for (var i = 0; i < entries.length; i++) {" +
+            "                var entry = entries[i];" +
+            "                var url = entry.name;" +
+            "                " +
+            "                // Detect video streams" +
+            "                if (url.match(/\\.(m3u8|mpd|ts|mp4|webm)(\\?.*)?$/i)) {" +
+            "                    var streamInfo = {" +
+            "                        url: url," +
+            "                        type: url.match(/\\.m3u8/i) ? 'application/x-mpegURL' : " +
+            "                             url.match(/\\.mpd/i) ? 'application/dash+xml' : 'video/mp4'," +
+            "                        title: document.title," +
+            "                        quality: 'auto'," +
+            "                        size: ''," +
+            "                        bitrate: ''" +
+            "                    };" +
+            "                    videoStreams.push(streamInfo);" +
+            "                }" +
+            "            }" +
             "        }" +
             "    }" +
             "    " +
-            "    // Detect streaming URLs in page content" +
-            "    var pageText = document.body.innerText;" +
-            "    var urlRegex = /https?:\\/\\/[^\\s\"']*\\.(m3u8|mpd)(\\?[^\\s\"']*)?/gi;" +
-            "    var match;" +
-            "    while ((match = urlRegex.exec(pageText)) !== null) {" +
-            "        videos.push({" +
-            "            url: match[0]," +
-            "            type: 'stream'," +
-            "            title: document.title" +
-            "        });" +
+            "    // Detect HLS/DASH manifests" +
+            "    function detectStreamingManifests() {" +
+            "        var scripts = document.querySelectorAll('script');" +
+            "        for (var i = 0; i < scripts.length; i++) {" +
+            "            var script = scripts[i];" +
+            "            if (script.textContent) {" +
+            "                var content = script.textContent;" +
+            "                " +
+            "                // Find HLS manifests" +
+            "                var hlsMatches = content.match(/https?:\\/\\/[^\\s\"']*\\.m3u8(\\?[^\\s\"']*)?/gi);" +
+            "                if (hlsMatches) {" +
+            "                    for (var j = 0; j < hlsMatches.length; j++) {" +
+            "                        videoStreams.push({" +
+            "                            url: hlsMatches[j]," +
+            "                            type: 'application/x-mpegURL'," +
+            "                            title: document.title," +
+            "                            quality: 'HLS Stream'," +
+            "                            size: ''," +
+            "                            bitrate: ''" +
+            "                        });" +
+            "                    }" +
+            "                }" +
+            "                " +
+            "                // Find DASH manifests" +
+            "                var dashMatches = content.match(/https?:\\/\\/[^\\s\"']*\\.mpd(\\?[^\\s\"']*)?/gi);" +
+            "                if (dashMatches) {" +
+            "                    for (var j = 0; j < dashMatches.length; j++) {" +
+            "                        videoStreams.push({" +
+            "                            url: dashMatches[j]," +
+            "                            type: 'application/dash+xml'," +
+            "                            title: document.title," +
+            "                            quality: 'DASH Stream'," +
+            "                            size: ''," +
+            "                            bitrate: ''" +
+            "                        });" +
+            "                    }" +
+            "                }" +
+            "            }" +
+            "        }" +
             "    }" +
             "    " +
-            "    if (videos.length > 0) {" +
-            "        window.Android.onVideosDetected(JSON.stringify(videos));" +
+            "    // Run detection" +
+            "    monitorVideos();" +
+            "    monitorNetworkRequests();" +
+            "    detectStreamingManifests();" +
+            "    " +
+            "    // Combine results" +
+            "    var allVideos = videos.concat(videoStreams);" +
+            "    " +
+            "    if (allVideos.length > 0) {" +
+            "        console.log('Detected videos:', allVideos);" +
+            "        window.Android.onVideosDetected(JSON.stringify(allVideos));" +
             "    }" +
+            "    " +
+            "    // Set up continuous monitoring" +
+            "    setInterval(function() {" +
+            "        monitorVideos();" +
+            "    }, 2000); // Check every 2 seconds" +
             "})();";
         
         webView.evaluateJavascript(script, null);
@@ -278,6 +532,26 @@ public class BrowserFragment extends Fragment {
             url = "https://" + url;
         }
         webView.loadUrl(url);
+    }
+    
+    private void loadTestVideoPage() {
+        // Create a simple test page with video for debugging
+        String testHtml = "<!DOCTYPE html>" +
+            "<html><head><title>Test Video Page</title></head>" +
+            "<body>" +
+            "<h1>Test Video Detection</h1>" +
+            "<video width='320' height='240' controls>" +
+            "<source src='https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4' type='video/mp4'>" +
+            "Your browser does not support the video tag." +
+            "</video>" +
+            "<br><br>" +
+            "<video width='320' height='240' controls>" +
+            "<source src='https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4' type='video/mp4'>" +
+            "Your browser does not support the video tag." +
+            "</video>" +
+            "</body></html>";
+        
+        webView.loadData(testHtml, "text/html", "UTF-8");
     }
     
     public void goBack() {
@@ -330,26 +604,45 @@ public class BrowserFragment extends Fragment {
     }
     
     private void showVideoDetectedDialog(VideoDetector.VideoInfo videoInfo) {
+        // Create quality options dialog like 1DM
         new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.video_detected)
-            .setMessage(getString(R.string.download_video) + "\n\n" + videoInfo.getTitle())
+            .setTitle(R.string.select_quality)
+            .setMessage(getString(R.string.video_detected) + "\n\n" + videoInfo.getTitle())
             .setPositiveButton(R.string.download, (dialog, which) -> {
-                // Add download to queue
-                addVideoToDownloadQueue(videoInfo);
+                showQualitySelectionDialog(videoInfo);
             })
             .setNegativeButton(android.R.string.cancel, null)
             .setNeutralButton(R.string.preview, (dialog, which) -> {
-                // Preview video
                 previewVideo(videoInfo);
             })
             .show();
     }
     
-    private void addVideoToDownloadQueue(VideoDetector.VideoInfo videoInfo) {
+    private void showQualitySelectionDialog(VideoDetector.VideoInfo videoInfo) {
+        // Create quality options
+        String[] qualities = {
+            "1080p HD (1920x1080) - ~500MB",
+            "720p HD (1280x720) - ~250MB", 
+            "480p SD (854x480) - ~150MB",
+            "360p SD (640x360) - ~100MB",
+            "Auto - Best Quality"
+        };
+        
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.select_quality)
+            .setItems(qualities, (dialog, which) -> {
+                String selectedQuality = qualities[which];
+                addVideoToDownloadQueue(videoInfo, selectedQuality);
+            })
+            .setNegativeButton(android.R.string.cancel, null)
+            .show();
+    }
+    
+    private void addVideoToDownloadQueue(VideoDetector.VideoInfo videoInfo, String quality) {
         // Create download entity
         rjv.mg.myidm.data.database.entity.DownloadEntity download = new rjv.mg.myidm.data.database.entity.DownloadEntity();
         download.setUrl(videoInfo.getUrl());
-        download.setFilename(videoInfo.getTitle() + ".mp4");
+        download.setFilename(videoInfo.getTitle() + " [" + quality + "].mp4");
         download.setType(rjv.mg.myidm.domain.model.DownloadType.HTTP_HTTPS);
         download.setStatus(rjv.mg.myidm.domain.model.DownloadStatus.PENDING);
         download.setSegmentCount(8); // Default segments
@@ -358,8 +651,13 @@ public class BrowserFragment extends Fragment {
         downloadManager.startDownload(download);
         
         android.widget.Toast.makeText(requireContext(), 
-            getString(R.string.download_started), 
+            getString(R.string.download_started) + " - " + quality, 
             android.widget.Toast.LENGTH_SHORT).show();
+    }
+    
+    private void addVideoToDownloadQueue(VideoDetector.VideoInfo videoInfo) {
+        // Default quality
+        addVideoToDownloadQueue(videoInfo, "Auto - Best Quality");
     }
     
     private void previewVideo(VideoDetector.VideoInfo videoInfo) {
@@ -381,6 +679,17 @@ public class BrowserFragment extends Fragment {
         android.widget.Toast.makeText(requireContext(), 
             getString(R.string.multiple_videos_detected) + " (" + videos.size() + ")", 
             android.widget.Toast.LENGTH_LONG).show();
+    }
+    
+    private void updateDownloadBadge(int count) {
+        if (downloadBadge != null) {
+            if (count > 0) {
+                downloadBadge.setVisibility(View.VISIBLE);
+                downloadBadge.setText(String.valueOf(count));
+            } else {
+                downloadBadge.setVisibility(View.GONE);
+            }
+        }
     }
     
     @Override
